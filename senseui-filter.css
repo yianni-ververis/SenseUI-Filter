@@ -1,0 +1,25 @@
+.senseui-filter {
+	height: 100%; 
+	position: relative; 
+	overflow: auto;
+}
+.scrollable {
+    height: auto;
+    z-index: 9999999;
+}
+.senseui-filter li {
+	line-height: 1em;
+	white-space: pre-wrap;
+}
+.senseui-filter li a {
+	cursor: pointer;
+	padding: 0 5px;
+	color: black;
+    background-color: white;
+	transition: all 0.3s ease;
+	font-style: normal;
+}
+.senseui-filter li a:hover { 
+	color: white;
+    background-color: #77b62a;
+}

@@ -1,0 +1,242 @@
+/**
+ *
+ * @title Sense UI - Filter
+ * @description Simple Filter with totals
+ *
+ * @author yianni.ververis@qlik.com
+ *
+ * @example https://github.com/yianni-ververis/
+ */
+
+define([
+	"qlik",
+	"jquery",
+	"qvangular",
+	'underscore',
+	"css!./senseui-filter.css",
+], function(qlik, $, qvangular, _) {
+'use strict';
+	
+	// Define properties
+	var me = {
+		initialProperties: {
+			version: 1.0,
+			qHyperCubeDef: {
+				qDimensions: [],
+				qMeasures: [],
+				qInitialDataFetch: [{
+					qWidth: 2,
+					qHeight: 500
+				}]
+			}
+		},
+		definition: {
+			type: "items",
+			component: "accordion",
+			items: {
+				dimensions: {
+					uses: "dimensions",
+					min: 1,
+					max: 1
+				},
+				measures: {
+					uses: "measures",
+					min: 1,
+					max: 1
+				},
+				sorting: {
+					uses: "sorting",
+				},
+				settings: {
+					uses : "settings",
+					items: {
+						DropDown: {
+							type: "items",
+							label: "Filter Settings",
+							items: {	
+								TotalsVisibility: {
+									type: "boolean",
+									label: 'Measure Visibility',
+									ref: 'vars.totals.visible',
+									defaultValue: true
+							    },
+								rowTextColor: {
+									type: "string",
+									expression: "none",
+									label: "Text color",
+									defaultValue: "#000000",
+									ref: "vars.row.textColor"
+								},
+								rowTextHoverColor: {
+									type: "string",
+									expression: "none",
+									label: "Text hover color",
+									defaultValue: "#FFFFFF",
+									ref: "vars.row.textHoverColor"
+								},
+								rowBackgroundColor: {
+									type: "string",
+									expression: "none",
+									label: "Background color",
+									defaultValue: "#FFFFFF",
+									ref: "vars.row.backgroundColor"
+								},
+								rowBackgroundHoverColor: {
+									type: "string",
+									expression: "none",
+									label: "Background hover color",
+									defaultValue: "#77b62a",
+									ref: "vars.row.backgroundHoverColor"
+								},
+								rowBorderWeight: {
+									type: "number",
+									expression: "none",
+									label: "Border weight",
+									component: "slider",
+									ref: "vars.row.borderWeight",
+									defaultValue: 0,
+									min: 0,
+									max: 3
+								},
+								rowBorderColor: {
+									type: "string",
+									expression: "none",
+									label: "Border color",
+									defaultValue: "#404040",
+									ref: "vars.row.borderColor"
+								},
+								rowSpacing: {
+									type: "number",
+									expression: "none",
+									label: "Spacing",
+									component: "slider",
+									ref: "vars.row.spacing",
+									defaultValue: 3,
+									min: 3,
+									max: 10
+								},
+								rowHeight: {
+									type: "number",
+									expression: "none",
+									label: "Element height",
+									component: "slider",
+									ref: "vars.row.height",
+									defaultValue: 10,
+									min: 10,
+									max: 50
+								},
+							}
+						}
+					}
+				}
+			}
+		}
+	};
+
+	// Get Engine API app for Selections
+	me.app = qlik.currApp(this);
+
+	// Alter properties on edit		
+	me.paint = function($element,layout) {
+// console.log(layout);
+// if (!layout.vars.row){
+// 	layout.vars.row = {};
+// }
+		var vars = {
+			id: layout.qInfo.qId,
+			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
+			data: layout.qHyperCube.qDataPages[0].qMatrix,
+			height: $element.height(),
+			width: $element.width(),
+			this: this,
+			totals: {
+				visible: (layout.vars.totals.visible) ? true : false,
+			},
+			row: {
+				height: (layout.vars.row.height)?layout.vars.row.height:10,
+				padding: (layout.vars.row.spacing)?layout.vars.row.spacing:3,
+				border: layout.vars.row.borderWeight,
+				textColor: (layout.vars.row.textColor)?layout.vars.row.textColor:'#000000',
+				textHoverColor: (layout.vars.row.textHoverColor)?layout.vars.row.textHoverColor:'#FFFFFF',
+				backgroundColor: (layout.vars.row.backgroundColor)?layout.vars.row.backgroundColor:'#FFFFFF',
+				backgroundHoverColor: (layout.vars.row.backgroundHoverColor)?layout.vars.row.backgroundHoverColor:'#77b62a',
+				borderColor: (layout.vars.row.borderColor)?layout.vars.row.borderColor:'#404040'
+			},
+
+		}
+
+		vars.data = vars.data.map(function(d) {
+			return {
+				"dimension":d[0].qText,
+				"measure":d[1].qText,
+				"measureNum":d[1].qNum,
+				"qElemNumber":d[0].qElemNumber,
+			}
+		});
+				
+		//Get Selection Bar
+		me.app.getList("SelectionObject", function(reply){
+			var selectedFields = reply.qSelectionObject.qSelections;
+			var selected = _.where(selectedFields, {'qField': vars.field});
+			if (selected.length) {
+				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).css( "color", vars.row.textHoverColor );
+				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).css( "background-color", vars.row.backgroundHoverColor );
+				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).unbind('mouseenter mouseleave');
+			}
+		});
+
+		vars.template = '\
+			<div qv-extension class="senseui-filter" id="' + vars.id + '_filter">\
+				<div class="scrollable">\
+					<ul>\
+		';
+
+
+		for (var i=0; i < vars.data.length; i++) {
+			vars.template += '<li><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+		}
+
+		vars.template += '\
+					</ul>\
+				</div>\
+			</div>\n\
+		';
+
+		$element.html(vars.template);
+
+		$( '#' + vars.id + '_filter a' ).click(function(e) {
+			var qElemNumber = parseInt(this.getAttribute('data-qElemNumber'));
+			vars.this.backendApi.selectValues(0, [qElemNumber], false);
+		});
+		// CSS
+		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
+		$( '#' + vars.id + '_filter li a' ).css( "background-color", vars.row.backgroundColor );
+		$( "#" + vars.id + "_filter li a" ).hover(
+			function() {
+				$(this).css("color", vars.row.textHoverColor );
+				$(this).css("background-color", vars.row.backgroundHoverColor);
+			}, function() {
+				$(this).css("color", vars.row.textColor );
+				$(this).css("background-color", vars.row.backgroundColor);
+			}
+		);
+		// $( '#' + vars.id + '_filter li' ).css( "height", vars.row.height );
+		$( '#' + vars.id + '_filter li' ).css( "padding", vars.row.padding );
+	};
+
+	// define HTML template
+	// me.template = '';
+
+	// Controller for binding
+	me.controller =['$scope','$rootScope', function($scope,$rootScope){
+	}];
+
+	// Return Ordinal Numbers 1st, 2nd etc.
+	me.getGetOrdinal = function (n) {
+		var s = ["th","st","nd","rd"],
+			v = n%100;
+		return n+(s[(v-20)%10]||s[v]||s[0]);
+	}
+
+	return me;
+});
