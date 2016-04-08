@@ -125,6 +125,20 @@ define([
 									min: 10,
 									max: 50
 								},
+								MultipleSelections: {
+									type: "boolean",
+									component: "switch",
+									label: "Multiple Selections",
+									ref: "vars.multipleSelections",
+									options: [{
+										value: true,
+										label: "On"
+									}, {
+										value: false,
+										label: "Off"
+									}],
+									defaultValue: false
+								}
 							}
 						}
 					}
@@ -162,6 +176,7 @@ define([
 				backgroundHoverColor: (layout.vars.row.backgroundHoverColor)?layout.vars.row.backgroundHoverColor:'#77b62a',
 				borderColor: (layout.vars.row.borderColor)?layout.vars.row.borderColor:'#404040'
 			},
+			multipleSelections: (layout.vars.multipleSelections) ? true : false,
 
 		}
 
@@ -179,9 +194,12 @@ define([
 			var selectedFields = reply.qSelectionObject.qSelections;
 			var selected = _.where(selectedFields, {'qField': vars.field});
 			if (selected.length) {
-				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).css( "color", vars.row.textHoverColor );
-				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).css( "background-color", vars.row.backgroundHoverColor );
-				$( '#' + vars.id + '_filter a:contains("' + selected[0].qSelected + '")' ).unbind('mouseenter mouseleave');
+				var selectedInfo = selected[0].qSelectedFieldSelectionInfo;
+				for (i = 0; i < selectedInfo.length; i++) { 
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "color", vars.row.textHoverColor );
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "background-color", vars.row.backgroundHoverColor );
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).unbind('mouseenter mouseleave');
+				}
 			}
 		});
 
@@ -206,7 +224,7 @@ define([
 
 		$( '#' + vars.id + '_filter a' ).click(function(e) {
 			var qElemNumber = parseInt(this.getAttribute('data-qElemNumber'));
-			vars.this.backendApi.selectValues(0, [qElemNumber], false);
+			vars.this.backendApi.selectValues(0, [qElemNumber], vars.multipleSelections);
 		});
 		// CSS
 		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
