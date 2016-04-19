@@ -152,10 +152,6 @@ define([
 
 	// Alter properties on edit		
 	me.paint = function($element,layout) {
-// console.log(layout);
-// if (!layout.vars.row){
-// 	layout.vars.row = {};
-// }
 		var vars = {
 			id: layout.qInfo.qId,
 			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
@@ -177,7 +173,6 @@ define([
 				borderColor: (layout.vars.row.borderColor)?layout.vars.row.borderColor:'#404040'
 			},
 			multipleSelections: (layout.vars.multipleSelections) ? true : false,
-
 		}
 
 		vars.data = vars.data.map(function(d) {
@@ -186,6 +181,7 @@ define([
 				"measure":d[1].qText,
 				"measureNum":d[1].qNum,
 				"qElemNumber":d[0].qElemNumber,
+				"qState":d[0].qState,
 			}
 		});
 				
@@ -196,9 +192,9 @@ define([
 			if (selected.length) {
 				var selectedInfo = selected[0].qSelectedFieldSelectionInfo;
 				for (i = 0; i < selectedInfo.length; i++) { 
-					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "color", vars.row.textHoverColor );
-					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "background-color", vars.row.backgroundHoverColor );
-					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).unbind('mouseenter mouseleave');
+					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "color", vars.row.textHoverColor );
+					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "background-color", vars.row.backgroundHoverColor );
+					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).unbind('mouseenter mouseleave');
 				}
 			}
 		});
@@ -209,9 +205,14 @@ define([
 					<ul>\
 		';
 
-
 		for (var i=0; i < vars.data.length; i++) {
-			vars.template += '<li><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+			var cssClass = '';
+			if (vars.data[i].qState=='S') {
+				cssClass = 'active';
+			} else if (vars.data[i].qState=='X') {
+				cssClass = 'deactive';
+			} 
+			vars.template += '<li class="' + cssClass + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
 		}
 
 		vars.template += '\
@@ -227,18 +228,17 @@ define([
 			vars.this.backendApi.selectValues(0, [qElemNumber], vars.multipleSelections);
 		});
 		// CSS
-		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
-		$( '#' + vars.id + '_filter li a' ).css( "background-color", vars.row.backgroundColor );
-		$( "#" + vars.id + "_filter li a" ).hover(
-			function() {
-				$(this).css("color", vars.row.textHoverColor );
-				$(this).css("background-color", vars.row.backgroundHoverColor);
-			}, function() {
-				$(this).css("color", vars.row.textColor );
-				$(this).css("background-color", vars.row.backgroundColor);
-			}
-		);
-		// $( '#' + vars.id + '_filter li' ).css( "height", vars.row.height );
+		// $( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
+		// $( '#' + vars.id + '_filter li a' ).css( "background-color", vars.row.backgroundColor );
+		// $( "#" + vars.id + "_filter li a" ).hover(
+		// 	function() {
+		// 		$(this).css("color", vars.row.textHoverColor );
+		// 		$(this).css("background-color", vars.row.backgroundHoverColor);
+		// 	}, function() {
+		// 		$(this).css("color", vars.row.textColor );
+		// 		$(this).css("background-color", vars.row.backgroundColor);
+		// 	}
+		// );
 		$( '#' + vars.id + '_filter li' ).css( "padding", vars.row.padding );
 	};
 
