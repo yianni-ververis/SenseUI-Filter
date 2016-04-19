@@ -204,16 +204,24 @@ define([
 				<div class="scrollable">\
 					<ul>\
 		';
-
+		
+		var templateSelected = '',
+			templateDeSelected = '',
+			templateDeActivated = '';
 		for (var i=0; i < vars.data.length; i++) {
 			var cssClass = '';
 			if (vars.data[i].qState=='S') {
-				cssClass = 'active';
+				templateSelected += '<li class="active"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
 			} else if (vars.data[i].qState=='X') {
-				cssClass = 'deactive';
-			} 
-			vars.template += '<li class="' + cssClass + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+				templateDeActivated += '<li class="deactive"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+			} else {
+				templateDeSelected += '<li class=""><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+			}
 		}
+
+		vars.template += templateSelected;
+		vars.template += templateDeSelected;
+		vars.template += templateDeActivated;
 
 		vars.template += '\
 					</ul>\
