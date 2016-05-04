@@ -11,6 +11,8 @@ It accepts a dimension as a list and a measure to display next to in parenthesis
 - Element padding and margin
 - Allow multiple selections or toggle between selections
 
+A sample measure to accomplish the "(26 of 34)"
+- Count(Distinct RespondentId) & ' of ' & Count({1} Distinct RespondentId)
 ---
 
 ![SenseUI - Filter](/preview.png?raw=true "SenseUI - Filter")

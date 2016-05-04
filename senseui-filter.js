@@ -208,14 +208,16 @@ define([
 		var templateSelected = '',
 			templateDeSelected = '',
 			templateDeActivated = '';
+		console.log(vars.totals.visible);
 		for (var i=0; i < vars.data.length; i++) {
-			var cssClass = '';
+			var cssClass = '',
+				totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
 			if (vars.data[i].qState=='S') {
-				templateSelected += '<li class="active"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+				templateSelected += '<li class="active"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
 			} else if (vars.data[i].qState=='X') {
-				templateDeActivated += '<li class="deactive"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+				templateDeActivated += '<li class="deactive"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
 			} else {
-				templateDeSelected += '<li class=""><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + ' (' + vars.data[i].measure + ')</a></li>'; 
+				templateDeSelected += '<li class=""><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
 			}
 		}
 
