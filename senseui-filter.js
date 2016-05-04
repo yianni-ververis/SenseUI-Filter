@@ -208,7 +208,7 @@ define([
 		var templateSelected = '',
 			templateDeSelected = '',
 			templateDeActivated = '';
-		console.log(vars.totals.visible);
+			
 		for (var i=0; i < vars.data.length; i++) {
 			var cssClass = '',
 				totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
