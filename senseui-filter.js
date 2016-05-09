@@ -81,6 +81,13 @@ define([
 									defaultValue: "#FFFFFF",
 									ref: "vars.row.backgroundColor"
 								},
+								rowBackgroundDeactiveColor: {
+									type: "string",
+									expression: "none",
+									label: "Background deactived color",
+									defaultValue: "#CCCCCC",
+									ref: "vars.row.backgroundDeactiveColor"
+								},
 								rowBackgroundHoverColor: {
 									type: "string",
 									expression: "none",
@@ -125,6 +132,20 @@ define([
 									min: 10,
 									max: 50
 								},
+								OrderBySelection: {
+									type: "boolean",
+									component: "switch",
+									label: "Order By Selection",
+									ref: "vars.orderBySelection",
+									options: [{
+										value: true,
+										label: "On"
+									}, {
+										value: false,
+										label: "Off"
+									}],
+									defaultValue: true
+								},
 								MultipleSelections: {
 									type: "boolean",
 									component: "switch",
@@ -138,7 +159,31 @@ define([
 										label: "Off"
 									}],
 									defaultValue: false
-								}
+								},
+								Horizontal: {
+									type: "boolean",
+									component: "switch",
+									label: "Horziontal / Vertical",
+									ref: "vars.horizontal",
+									options: [{
+										value: true,
+										label: "Horizontal"
+									}, {
+										value: false,
+										label: "Vertical"
+									}],
+									defaultValue: false
+								},
+								Separator: {
+									type: "string",
+									expression: "none",
+									label: "Separator",
+									defaultValue: "|",
+									ref: "vars.separator",
+									show : function(data) {
+										return data.vars.horizontal;
+									}
+								},
 							}
 						}
 					}
@@ -170,9 +215,19 @@ define([
 				textHoverColor: (layout.vars.row.textHoverColor)?layout.vars.row.textHoverColor:'#FFFFFF',
 				backgroundColor: (layout.vars.row.backgroundColor)?layout.vars.row.backgroundColor:'#FFFFFF',
 				backgroundHoverColor: (layout.vars.row.backgroundHoverColor)?layout.vars.row.backgroundHoverColor:'#77b62a',
+				backgroundDeactiveColor: (layout.vars.row.backgroundDeactiveColor)?layout.vars.row.backgroundDeactiveColor:'#CCCCCC',
 				borderColor: (layout.vars.row.borderColor)?layout.vars.row.borderColor:'#404040'
 			},
+			orderBySelection: (layout.vars.orderBySelection) ? true : false,
 			multipleSelections: (layout.vars.multipleSelections) ? true : false,
+			horizontal: (layout.vars.horizontal) ? true : false,
+			separator: (layout.vars.separator) ? layout.vars.separator : '|',
+		}
+
+		// For old uses of the extension
+		// @TODO remove after we check all the mashups that use this extension
+		if (_.isUndefined(layout.vars.orderBySelection)) {
+			vars.orderBySelection = true
 		}
 
 		vars.data = vars.data.map(function(d) {
@@ -204,26 +259,43 @@ define([
 				<div class="scrollable">\
 					<ul>\
 		';
-		
+
 		var templateSelected = '',
 			templateDeSelected = '',
-			templateDeActivated = '';
+			templateDeActivated = '',
+			cssType = 'vertical',
+			separator = '';
+
+			if (vars.horizontal) {
+				cssType = 'horizontal';
+				separator = vars.separator;
+			}
+
+		if (vars.orderBySelection) {
+			for (var i=0; i < vars.data.length; i++) {
+				var cssClass = '',
+					totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
+				if (vars.data[i].qState=='S') {
+					templateSelected += '<li class="active ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
+				} else if (vars.data[i].qState=='X') {
+					templateDeActivated += '<li class="deactive ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
+				} else {
+					templateDeSelected += '<li class="' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
+				}
+			}
 			
-		for (var i=0; i < vars.data.length; i++) {
-			var cssClass = '',
-				totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
-			if (vars.data[i].qState=='S') {
-				templateSelected += '<li class="active"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
-			} else if (vars.data[i].qState=='X') {
-				templateDeActivated += '<li class="deactive"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
-			} else {
-				templateDeSelected += '<li class=""><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>'; 
+			vars.template += templateSelected;
+			vars.template += templateDeSelected;
+			vars.template += templateDeActivated;
+		} else {
+			for (var i=0; i < vars.data.length; i++) {
+				separator = (i==vars.data.length-1) ? '' : separator;
+				var cssClass = (vars.data[i].qState=='S')?'active':'',
+					totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
+				vars.template += '<li class="'+ cssClass + ' ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 			}
 		}
 
-		vars.template += templateSelected;
-		vars.template += templateDeSelected;
-		vars.template += templateDeActivated;
 
 		vars.template += '\
 					</ul>\
@@ -238,7 +310,9 @@ define([
 			vars.this.backendApi.selectValues(0, [qElemNumber], vars.multipleSelections);
 		});
 		// CSS
-		// $( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
+		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
+		$( '#' + vars.id + '_filter li.active a' ).css( "color", vars.row.textHoverColor );
+		$( '#' + vars.id + '_filter li.deactive' ).css( "background-color", vars.row.backgroundDeactiveColor );
 		// $( '#' + vars.id + '_filter li a' ).css( "background-color", vars.row.backgroundColor );
 		// $( "#" + vars.id + "_filter li a" ).hover(
 		// 	function() {

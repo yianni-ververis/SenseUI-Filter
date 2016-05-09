@@ -10,13 +10,17 @@ It accepts a dimension as a list and a measure to display next to in parenthesis
 - Add a border to the list and control the width
 - Element padding and margin
 - Allow multiple selections or toggle between selections
+- Turn it into a horizontal menu like the screenshot below
 
 A sample measure to accomplish the "(26 of 34)"
 - Count(Distinct RespondentId) & ' of ' & Count({1} Distinct RespondentId)
+
 ---
 
 ![SenseUI - Filter](/preview.png?raw=true "SenseUI - Filter")
 
+
+![SenseUI - Filter](/horizontal-menu.png?raw=true "SenseUI - Filter - Horizontal Menu")
 
 ---
 
