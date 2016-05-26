@@ -63,7 +63,7 @@ define([
 								rowTextColor: {
 									type: "string",
 									expression: "none",
-									label: "Text color",
+									label: "Text color (#000000 OR rgb(0,0,0) OR rgba(0,0,0,1) ",
 									defaultValue: "#000000",
 									ref: "vars.row.textColor"
 								},
@@ -73,6 +73,13 @@ define([
 									label: "Text hover color",
 									defaultValue: "#FFFFFF",
 									ref: "vars.row.textHoverColor"
+								},
+								rowTextDeactivatedColor: {
+									type: "string",
+									expression: "none",
+									label: "Text deactivated color",
+									defaultValue: "#000000",
+									ref: "vars.row.textDeactivatedColor"
 								},
 								rowBackgroundColor: {
 									type: "string",
@@ -198,6 +205,7 @@ define([
 	// Alter properties on edit		
 	me.paint = function($element,layout) {
 		var vars = {
+			v: '1.0.2',
 			id: layout.qInfo.qId,
 			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
 			data: layout.qHyperCube.qDataPages[0].qMatrix,
@@ -213,6 +221,7 @@ define([
 				border: layout.vars.row.borderWeight,
 				textColor: (layout.vars.row.textColor)?layout.vars.row.textColor:'#000000',
 				textHoverColor: (layout.vars.row.textHoverColor)?layout.vars.row.textHoverColor:'#FFFFFF',
+				textDeactivatedColor: (layout.vars.row.textDeactivatedColor)?layout.vars.row.textDeactivatedColor:'#000000',
 				backgroundColor: (layout.vars.row.backgroundColor)?layout.vars.row.backgroundColor:'#FFFFFF',
 				backgroundHoverColor: (layout.vars.row.backgroundHoverColor)?layout.vars.row.backgroundHoverColor:'#77b62a',
 				backgroundDeactiveColor: (layout.vars.row.backgroundDeactiveColor)?layout.vars.row.backgroundDeactiveColor:'#CCCCCC',
@@ -309,21 +318,28 @@ define([
 			var qElemNumber = parseInt(this.getAttribute('data-qElemNumber'));
 			vars.this.backendApi.selectValues(0, [qElemNumber], vars.multipleSelections);
 		});
+		
 		// CSS
 		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
 		$( '#' + vars.id + '_filter li.active a' ).css( "color", vars.row.textHoverColor );
+		$( '#' + vars.id + '_filter li.active' ).css( "background-color", vars.row.backgroundHoverColor );
+		$( '#' + vars.id + '_filter li.deactive a' ).css( "color", vars.row.textDeactivatedColor );
 		$( '#' + vars.id + '_filter li.deactive' ).css( "background-color", vars.row.backgroundDeactiveColor );
-		// $( '#' + vars.id + '_filter li a' ).css( "background-color", vars.row.backgroundColor );
-		// $( "#" + vars.id + "_filter li a" ).hover(
-		// 	function() {
-		// 		$(this).css("color", vars.row.textHoverColor );
-		// 		$(this).css("background-color", vars.row.backgroundHoverColor);
-		// 	}, function() {
-		// 		$(this).css("color", vars.row.textColor );
-		// 		$(this).css("background-color", vars.row.backgroundColor);
-		// 	}
-		// );
+		$( '#' + vars.id + '_filter li:not(.active,.deactive)' ).css( "background-color", vars.row.backgroundColor );
+		$( "#" + vars.id + "_filter li:not(.active,.deactive)" ).hover(
+			function() {
+				// console.log($(this))
+				// $(this).children().css("color", vars.row.textHoverColor );
+				$(this).find( "a" ).css("color", vars.row.textHoverColor );
+				$(this).css("background-color", vars.row.backgroundHoverColor);
+			}, function() {
+				// $(this).children().css("color", vars.row.textColor );
+				$(this).find( "a" ).css("color", vars.row.textColor );
+				$(this).css("background-color", vars.row.backgroundColor);
+			}
+		);
 		$( '#' + vars.id + '_filter li' ).css( "padding", vars.row.padding );
+		console.info('%c SenseUI-Filter ' + vars.v + ': ', 'color: red', '#' + vars.id + ' Loaded!');
 	};
 
 	// define HTML template
