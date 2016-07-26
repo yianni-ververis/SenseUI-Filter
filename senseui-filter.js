@@ -219,7 +219,7 @@ define([
 	// Alter properties on edit		
 	me.paint = function($element,layout) {
 		var vars = {
-			v: '1.0.2',
+			v: '1.1.0',
 			id: layout.qInfo.qId,
 			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
 			data: layout.qHyperCube.qDataPages[0].qMatrix,
