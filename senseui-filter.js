@@ -52,7 +52,7 @@ define([
 					items: {
 						DropDown: {
 							type: "items",
-							label: "Filter Settings",
+							label: "SenseUI-Filter Settings",
 							items: {	
 								TotalsVisibility: {
 									type: "boolean",
@@ -74,10 +74,24 @@ define([
 									defaultValue: "#FFFFFF",
 									ref: "vars.row.textHoverColor"
 								},
+								deselected: {
+									type: "boolean",
+									component: "switch",
+									label: "Background of deselected",
+									ref: "vars.deselected",
+									options: [{
+										value: true,
+										label: "On"
+									}, {
+										value: false,
+										label: "Off"
+									}],
+									defaultValue: true
+								},
 								rowTextDeactivatedColor: {
 									type: "string",
 									expression: "none",
-									label: "Text deactivated color",
+									label: "Text deselected color",
 									defaultValue: "#000000",
 									ref: "vars.row.textDeactivatedColor"
 								},
@@ -179,7 +193,7 @@ define([
 										value: false,
 										label: "Vertical"
 									}],
-									defaultValue: false
+									defaultValue: true
 								},
 								Separator: {
 									type: "string",
@@ -229,6 +243,7 @@ define([
 			},
 			orderBySelection: (layout.vars.orderBySelection) ? true : false,
 			multipleSelections: (layout.vars.multipleSelections) ? true : false,
+			deselected: (layout.vars.deselected || typeof layout.vars.deselected==='undefined') ? true : false,
 			horizontal: (layout.vars.horizontal) ? true : false,
 			separator: (layout.vars.separator) ? layout.vars.separator : '|',
 		}
@@ -248,7 +263,7 @@ define([
 				"qState":d[0].qState,
 			}
 		});
-				
+
 		//Get Selection Bar
 		me.app.getList("SelectionObject", function(reply){
 			var selectedFields = reply.qSelectionObject.qSelections;
@@ -256,9 +271,9 @@ define([
 			if (selected.length) {
 				var selectedInfo = selected[0].qSelectedFieldSelectionInfo;
 				for (i = 0; i < selectedInfo.length; i++) { 
-					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "color", vars.row.textHoverColor );
-					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "background-color", vars.row.backgroundHoverColor );
-					// $( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).unbind('mouseenter mouseleave');
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "color", vars.row.textHoverColor );
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).css( "background-color", vars.row.backgroundHoverColor );
+					$( '#' + vars.id + '_filter a:contains("' + selectedInfo[i].qName + '")' ).unbind('mouseenter mouseleave');
 				}
 			}
 		});
@@ -287,7 +302,8 @@ define([
 				if (vars.data[i].qState=='S') {
 					templateSelected += '<li class="active ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 				} else if (vars.data[i].qState=='X') {
-					templateDeActivated += '<li class="deactive ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
+					var cssDeselected = (vars.deselected) ? 'deactive' : '';
+					templateDeActivated += '<li class="' + cssDeselected + ' ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 				} else {
 					templateDeSelected += '<li class="' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 				}
@@ -299,8 +315,13 @@ define([
 		} else {
 			for (var i=0; i < vars.data.length; i++) {
 				separator = (i==vars.data.length-1) ? '' : separator;
-				var cssClass = (vars.data[i].qState=='S')?'active':'',
-					totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
+				var cssClass = '';
+				if (vars.data[i].qState=='S') {
+					cssClass = 'active';
+				} else if (vars.data[i].qState=='X' && vars.deselected) {
+					cssClass = 'deactive';
+				}
+				var	totals = (vars.totals.visible) ? ' (' + vars.data[i].measure + ')':'';
 				vars.template += '<li class="'+ cssClass + ' ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 			}
 		}
@@ -328,7 +349,6 @@ define([
 		$( '#' + vars.id + '_filter li:not(.active,.deactive)' ).css( "background-color", vars.row.backgroundColor );
 		$( "#" + vars.id + "_filter li:not(.active,.deactive)" ).hover(
 			function() {
-				// console.log($(this))
 				// $(this).children().css("color", vars.row.textHoverColor );
 				$(this).find( "a" ).css("color", vars.row.textHoverColor );
 				$(this).css("background-color", vars.row.backgroundHoverColor);
