@@ -74,20 +74,6 @@ define([
 									defaultValue: "#FFFFFF",
 									ref: "vars.row.textHoverColor"
 								},
-								deselected: {
-									type: "boolean",
-									component: "switch",
-									label: "Background of deselected",
-									ref: "vars.deselected",
-									options: [{
-										value: true,
-										label: "On"
-									}, {
-										value: false,
-										label: "Off"
-									}],
-									defaultValue: true
-								},
 								rowTextDeactivatedColor: {
 									type: "string",
 									expression: "none",
@@ -101,6 +87,20 @@ define([
 									label: "Background color",
 									defaultValue: "#FFFFFF",
 									ref: "vars.row.backgroundColor"
+								},
+								deselected: {
+									type: "boolean",
+									component: "switch",
+									label: "Background of deactived",
+									ref: "vars.deselected",
+									options: [{
+										value: true,
+										label: "On"
+									}, {
+										value: false,
+										label: "Off"
+									}],
+									defaultValue: true
 								},
 								rowBackgroundDeactiveColor: {
 									type: "string",
