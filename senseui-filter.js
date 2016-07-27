@@ -219,7 +219,7 @@ define([
 	// Alter properties on edit		
 	me.paint = function($element,layout) {
 		var vars = {
-			v: '1.1.1',
+			v: '1.1.2',
 			id: layout.qInfo.qId,
 			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
 			data: layout.qHyperCube.qDataPages[0].qMatrix,
@@ -328,6 +328,9 @@ define([
 
 		// CSS
 		vars.css = '\n\
+			div[tid="rowHeight"] { \n\
+				border-bottom: 1px solid #9D9D9D\n\
+			} \n\
 			#' + vars.id + '_filter li {\n\
 				padding: ' + vars.row.padding + 'px; \n\
 			}\n\
