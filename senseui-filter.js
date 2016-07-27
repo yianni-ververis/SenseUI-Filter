@@ -219,7 +219,7 @@ define([
 	// Alter properties on edit		
 	me.paint = function($element,layout) {
 		var vars = {
-			v: '1.1.0',
+			v: '1.1.1',
 			id: layout.qInfo.qId,
 			field: layout.qHyperCube.qDimensionInfo[0].qFallbackTitle,
 			data: layout.qHyperCube.qDataPages[0].qMatrix,
@@ -315,7 +315,7 @@ define([
 		} else {
 			for (var i=0; i < vars.data.length; i++) {
 				separator = (i==vars.data.length-1) ? '' : separator;
-				var cssClass = '';
+				var cssClass = 'open';
 				if (vars.data[i].qState=='S') {
 					cssClass = 'active';
 				} else if (vars.data[i].qState=='X' && vars.deselected) {
@@ -326,6 +326,37 @@ define([
 			}
 		}
 
+		// CSS
+		vars.css = '\n\
+			#' + vars.id + '_filter li {\n\
+				padding: ' + vars.row.padding + 'px; \n\
+			}\n\
+			#' + vars.id + '_filter li a {\n\
+				color: ' + vars.row.textColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li a:hover {\n\
+				color: ' + vars.row.textHoverColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li.active a {\n\
+				color: ' +  vars.row.textHoverColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li.active {\n\
+				background-color: ' + vars.row.backgroundHoverColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li.deactive a {\n\
+				color: ' + vars.row.textDeactivatedColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li.deactive {\n\
+				background-color: ' + vars.row.backgroundDeactiveColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li:not(.active,.deactive) {\n\
+				background-color: ' + vars.row.backgroundColor + '; \n\
+			}\n\
+			#' + vars.id + '_filter li.open:hover{\n\
+				background-color: ' + vars.row.backgroundHoverColor + '; \n\
+			}\n\
+		';
+		$("<style>").html(vars.css).appendTo("head");
 
 		vars.template += '\
 					</ul>\
@@ -334,31 +365,12 @@ define([
 		';
 
 		$element.html(vars.template);
-
+		
 		$( '#' + vars.id + '_filter a' ).click(function(e) {
 			var qElemNumber = parseInt(this.getAttribute('data-qElemNumber'));
 			vars.this.backendApi.selectValues(0, [qElemNumber], vars.multipleSelections);
 		});
 		
-		// CSS
-		$( '#' + vars.id + '_filter li a' ).css( "color", vars.row.textColor );
-		$( '#' + vars.id + '_filter li.active a' ).css( "color", vars.row.textHoverColor );
-		$( '#' + vars.id + '_filter li.active' ).css( "background-color", vars.row.backgroundHoverColor );
-		$( '#' + vars.id + '_filter li.deactive a' ).css( "color", vars.row.textDeactivatedColor );
-		$( '#' + vars.id + '_filter li.deactive' ).css( "background-color", vars.row.backgroundDeactiveColor );
-		$( '#' + vars.id + '_filter li:not(.active,.deactive)' ).css( "background-color", vars.row.backgroundColor );
-		$( "#" + vars.id + "_filter li:not(.active,.deactive)" ).hover(
-			function() {
-				// $(this).children().css("color", vars.row.textHoverColor );
-				$(this).find( "a" ).css("color", vars.row.textHoverColor );
-				$(this).css("background-color", vars.row.backgroundHoverColor);
-			}, function() {
-				// $(this).children().css("color", vars.row.textColor );
-				$(this).find( "a" ).css("color", vars.row.textColor );
-				$(this).css("background-color", vars.row.backgroundColor);
-			}
-		);
-		$( '#' + vars.id + '_filter li' ).css( "padding", vars.row.padding );
 		console.info('%c SenseUI-Filter ' + vars.v + ': ', 'color: red', '#' + vars.id + ' Loaded!');
 	};
 
