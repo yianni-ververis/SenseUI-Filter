@@ -325,7 +325,7 @@ define([
 				vars.template += '<li class="'+ cssClass + ' ' + cssType + '"><a data-qElemNumber="' + vars.data[i].qElemNumber + '">' + vars.data[i].dimension + totals + '</a></li>' + separator; 
 			}
 		}
-
+		
 		// CSS
 		vars.css = '\n\
 			div[tid="rowHeight"] { \n\
@@ -343,6 +343,7 @@ define([
 			#' + vars.id + '_filter li.active a {\n\
 				color: ' +  vars.row.textHoverColor + '; \n\
 			}\n\
+			#' + vars.id + '_filter li:hover, \n\
 			#' + vars.id + '_filter li.active {\n\
 				background-color: ' + vars.row.backgroundHoverColor + '; \n\
 			}\n\
